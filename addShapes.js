@@ -87,7 +87,7 @@ const inputImage = document.getElementById('input-img')
 
 
 inputImage.addEventListener('change', async(e) => {
-
+ 
   pictures = []
   ctx.clearRect(0, 0, 5000, 5000)
   const reader = new FileReader()
@@ -102,6 +102,9 @@ inputImage.addEventListener('change', async(e) => {
  sizeOfImage.height =  (height > 600) ? 500 : height;
  ctx.clearRect(0, 0, canvasWidth, canvasHeight)
   ctx.drawImage(image, 0, 0 , sizeOfImage.width , sizeOfImage.height)
+
+
+
  }}
 })
 
@@ -334,7 +337,7 @@ saveImg.addEventListener('click', () => {
 })
 
 const undoLast = () => {
-  if (index <= 0) {
+  if (index < 0) {
     clearCanvasHandler()
     pictures = []
   } else {
