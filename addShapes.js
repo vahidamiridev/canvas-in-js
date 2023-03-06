@@ -1,45 +1,43 @@
 
 
 const canvas = document.querySelector('canvas'),
-  toolBtn = document.querySelectorAll('.tool'),
-  fillColor = document.querySelector('#fill-color'),
-  sizeSlider = document.querySelector('#size-slider'),
-  colorBtns = document.querySelectorAll('.colors .option'),
-  colorPicker = document.querySelector('#color-picker'),
-  clearCanvas = document.querySelector('.clear-canvas'),
-  saveImg = document.querySelector('.save-img'),
-  changeImg = document.querySelector('.change-background'),
-  undoBtn = document.querySelector('.undo'),
-  moveItem = document.querySelector('.move-item'),
-  drawAgain = document.querySelector('.draw-again'),
-  ctx = canvas.getContext('2d')
+      toolBtn = document.querySelectorAll('.tool'),
+      fillColor = document.querySelector('#fill-color'),
+      sizeSlider = document.querySelector('#size-slider'),
+      colorBtns = document.querySelectorAll('.colors .option'),
+      colorPicker = document.querySelector('#color-picker'),
+      clearCanvas = document.querySelector('.clear-canvas'),
+      saveImg = document.querySelector('.save-img'),
+      changeImg = document.querySelector('.change-background'),
+      undoBtn = document.querySelector('.undo'),
+      moveItem = document.querySelector('.move-item'),
+      drawAgain = document.querySelector('.draw-again'),
+      inputImage = document.getElementById('input-img'),
+      ctx = canvas.getContext('2d')
 
 let prevMouseX,
-  prevMouseY,
-  snapshot,
-  isDrawing = false,
-  brushWidth = 5,
-  selectedTool = 'brush',
-  selectedColor = '#000',
-  restore_arrray = [],
-  index = -1,
-  isHand = false
+    prevMouseY,
+    snapshot,
+    isDrawing = false,
+    brushWidth = 5,
+    selectedTool = 'brush',
+    selectedColor = '#000',
+    restore_arrray = [],
+    index = -1,
+    isHand = false
 
 let sizeOfImage = { width: 0, height: 0 }
-let img
-let canvasOffset = $('#canvas').offset()
-let offsetX = canvasOffset.left
-let offsetY = canvasOffset.top
-let canvasWidth = canvas.width
-let canvasHeight = canvas.height
+let offsetX = canvas.offsetLeft
+let offsetY = canvas.offsetTop
 let isDragging = false
-
 let pictures = []
+
+
 
 const setCanvasBackground = () => {
   //setting whole canvas background to white , so the downloaded img background will be white
   ctx.fillStyle = '#fff'
-  ctx.fillRect(0, 0, canvas.width, canvas.height)
+  ctx.fillRect(0,0, canvas.width, canvas.height)
   ctx.fillStyle = selectedColor //setting fill style back to the selected Color ,it`ll be the brush color
 }
 
@@ -50,13 +48,12 @@ window.addEventListener('load', () => {
   setCanvasBackground()
 })
 
-const inputImage = document.getElementById('input-img')
 
 
 
 
 
-// function readFileData(file) {                          ////////////////////////////////////////////////////////////////////////
+// function readFileData(file) {                          ///////////////for handel multiple image
 //   return new Promise((resolve, reject) => {
 //         const reader = new FileReader();
 //         reader.readAsDataURL(file);
@@ -73,11 +70,6 @@ const inputImage = document.getElementById('input-img')
 //   });
 // };
 
-
-
-
-
-
 // inputImage.addEventListener('change', async(e) => {
 //   let files = inputImage.files
 //     for (let i = 0; i < files.length ; i++) {
@@ -87,7 +79,6 @@ const inputImage = document.getElementById('input-img')
 
 
 inputImage.addEventListener('change', async(e) => {
- 
   pictures = []
   ctx.clearRect(0, 0, 5000, 5000)
   const reader = new FileReader()
@@ -100,67 +91,16 @@ inputImage.addEventListener('change', async(e) => {
  const { height, width } = pictures[0]
  sizeOfImage.width = (width > 600) ? 500 : width;
  sizeOfImage.height =  (height > 600) ? 500 : height;
- ctx.clearRect(0, 0, canvasWidth, canvasHeight)
+ ctx.clearRect(0, 0, canvas.width, canvas.height)
   ctx.drawImage(image, 0, 0 , sizeOfImage.width , sizeOfImage.height)
-
-
-
  }}
 })
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// function handleMouseDown(e) {
-//   canMouseX = parseInt(e.clientX - offsetX)
-//   canMouseY = parseInt(e.clientY - offsetY)
-//   // set the drag flag
-//   isDragging = true
-// }
-
-// function handleMouseUp(e) {
-//   canMouseX = parseInt(e.clientX - offsetX)
-//   canMouseY = parseInt(e.clientY - offsetY)
-//   // clear the drag flag
-//   isDragging = false
-// }
-
 function handleMouseOut(e) {
-  canMouseX = parseInt(e.clientX - offsetX)
-  canMouseY = parseInt(e.clientY - offsetY)
   // user has left the canvas, so clear the drag flag
-  //isDragging=false;
+  isDragging=false;
 }
-
-// function handleMouseMove(e) {
-//   canMouseX = parseInt(e.clientX - offsetX)
-//   canMouseY = parseInt(e.clientY - offsetY)
-//   // if the drag flag is set, clear the canvas and draw the image
-//   if (isDragging) {
-
-//       ctx.clearRect(0, 0, 5000, 5000)
-//       ctx.drawImage(
-//       item,
-//       canMouseX - 128 / 2,
-//       canMouseY - 120 / 2,
-//       sizeOfImage.width,
-//       sizeOfImage.height,
-//     )
-//   }
-// }
 
 const drawRect = (e) => {
   //if fillColor isn`t checked draw a react with border else draw react with background
@@ -208,8 +148,6 @@ const drawTriangle = (e) => {
 
 const startLeftClickOnCanvas = (e) => {
   if (isHand) {
-    canMouseX = parseInt(e.clientX - offsetX)
-    canMouseY = parseInt(e.clientY - offsetY)
     // set the drag flag
     isDragging = true
   } else {
@@ -276,11 +214,11 @@ const movingMouseOnCanvas = (e) => {
 
 const stopLeftClickOnCanvas = (e) => {
   if (isHand) {
-    canMouseX = parseInt(e.clientX - offsetX)
-    canMouseY = parseInt(e.clientY - offsetY)
     // clear the drag flag
     isDragging = false
     isHand = false
+    restore_arrray.push(ctx.getImageData(0, 0, canvas.width, canvas.height))
+    index += 1
   } else {
     isDrawing = false
     restore_arrray.push(ctx.getImageData(0, 0, canvas.width, canvas.height))
@@ -288,6 +226,25 @@ const stopLeftClickOnCanvas = (e) => {
     // console.log(restore_arrray)
   }
 }
+
+const clearCanvasHandler = () => {
+  ctx.clearRect(0, 0, canvas.width, canvas.height) // clearing whole canvas
+  setCanvasBackground()
+  restore_arrray = []
+  index = -1
+  pictures = []
+}
+const undoLast = () => {
+  if (index <= 0) {
+    clearCanvasHandler()
+    pictures = []
+  } else {
+    index -= 1
+    restore_arrray.pop()
+    ctx.putImageData(restore_arrray[index], 0, 0)
+  }
+}
+
 
 toolBtn.forEach((btn) => {
   btn.addEventListener('click', () => {
@@ -299,7 +256,6 @@ toolBtn.forEach((btn) => {
   })
 })
 
-sizeSlider.addEventListener('change', () => (brushWidth = sizeSlider.value)) //passing slider valu az brushsize
 
 colorBtns.forEach((btn) => {
   btn.addEventListener('click', () => {
@@ -319,16 +275,6 @@ colorPicker.addEventListener('change', () => {
   colorPicker.parentElement.click()
 })
 
-const clearCanvasHandler = () => {
-  ctx.clearRect(0, 0, canvas.width, canvas.height) // clearing whole canvas
-  setCanvasBackground()
-  restore_arrray = []
-  index = -1
-  pictures = []
-}
-
-clearCanvas.addEventListener('click', clearCanvasHandler)
-
 saveImg.addEventListener('click', () => {
   const link = document.createElement('a') //creating <a> element
   link.download = `${Date.now()}.jpg` //passing current date as link href value
@@ -336,36 +282,16 @@ saveImg.addEventListener('click', () => {
   link.click() //clicking link to download image
 })
 
-const undoLast = () => {
-  if (index < 0) {
-    clearCanvasHandler()
-    pictures = []
-  } else {
-    index -= 1
-    restore_arrray.pop()
-    ctx.putImageData(restore_arrray[index], 0, 0)
-  }
-}
 
+sizeSlider.addEventListener('change', () => (brushWidth = sizeSlider.value)) //passing slider valu az brushsize
+clearCanvas.addEventListener('click', clearCanvasHandler)
 moveItem.addEventListener('click', () => (isHand = true))
-// drawAgain.addEventListener('click' ,()=>isHand = false);
-
 undoBtn.addEventListener('click', undoLast)
 
-// canvas.addEventListener('touchstart', handleMouseDown);
-// canvas.addEventListener('touchend', handleMouseUp);
-// canvas.addEventListener('touchcancel', handleMouseUp);
-// canvas.addEventListener('touchmove', handleMouseMove);
 
 canvas.addEventListener('mousedown', startLeftClickOnCanvas)
 canvas.addEventListener('mousemove', movingMouseOnCanvas)
 canvas.addEventListener('mouseup', stopLeftClickOnCanvas)
 canvas.addEventListener('mouseout', handleMouseOut)
 
-// const startForMoving = (e) =>{
-// // e.preventDefault()
 
-//   let startX =parseInt(e.clientX)
-//   let startY = parseInt(e.clientY)
-
-// }
